@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Rekap Tata Tertib - Sidebar Navigasi</title>
+<title>Rekap Tata Tertib - Navigasi Lengkap</title>
 <style>
   :root {
-    --sidebar-width: 220px;
+    --sidebar-width: 250px;
     --sidebar-collapsed-width: 50px;
   }
   * {
@@ -154,16 +154,43 @@
 <button class="theme-toggle" onclick="toggleTheme()">🌙 Mode Gelap</button>
 
 <script>
-  // Link dasar Google Sheets pubhtml kamu tanpa gid
+  // Base URL Google Sheets kamu (publish to web versi pubhtml)
   const baseSheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSc_0t3Znf0X9eSpBcaJWlccpfUP7yVkwK51eJF_lMukq8LAiQZn3Jq_mxEy5Xm8j_vspSxTb25p0aD/pubhtml";
 
-  // Daftar sheet dan gid-nya
+  // Daftar sheet dan gid-nya (isi gid sesuai sheet di spreadsheet kamu)
   const sheets = [
-    { name: "Semua", gid: "0" },
-    { name: "Keterlambatan", gid: "123456789" },
-    { name: "Alpha", gid: "987654321" },
-    { name: "X-A", gid: "1122334455" }
-    // Tambah sheet lain sesuai gid dan nama kamu
+    { name: "Daf. Isi", gid: "1670469346" },
+    { name: "Telambat", gid: "1328070037" },
+    { name: "Alpha", gid: "1258603752" },
+    { name: "X-A", gid: "1406171803" },
+    { name: "X-B", gid: "302991046" },
+    { name: "X-C", gid: "944079364" },
+    { name: "X-D", gid: "1371101611" },
+    { name: "X-E", gid: "920015549" },
+    { name: "X-F", gid: "1931056424" },
+    { name: "X-G", gid: "2126199053" },
+    { name: "X-H", gid: "1401517437" },
+    { name: "X-I", gid: "571999262" },
+    { name: "XI-A", gid: "1776550704" },
+    { name: "XI-B", gid: "2123269225" },
+    { name: "XI-C", gid: "748366967" },
+    { name: "XI-D", gid: "344950157" },
+    { name: "XI-E", gid: "615791672" },
+    { name: "XI-F", gid: "477029208" },
+    { name: "XI-G", gid: "502141237" },
+    { name: "XI-H", gid: "801841993" },
+    { name: "XI-I", gid: "1368938090" },
+    { name: "XI-J", gid: "1471341395" },
+    { name: "XII-A", gid: "307462952" },
+    { name: "XII-B", gid: "2141752691" },
+    { name: "XII-C", gid: "1378802815" },
+    { name: "XII-D", gid: "186687565" },
+    { name: "XII-E", gid: "1319619118" },
+    { name: "XII-F", gid: "2027266169" },
+    { name: "XII-G", gid: "2142432146" },
+    { name: "XII-H", gid: "629192261" },
+    { name: "XII-I", gid: "1868165993" },
+    { name: "XII-J", gid: "162477446" }
   ];
 
   const navButtonsDiv = document.getElementById('nav-buttons');
@@ -171,7 +198,6 @@
   const sidebar = document.getElementById('sidebar');
   const toggleSidebarBtn = document.getElementById('toggle-sidebar');
 
-  // Buat tombol navigasi
   sheets.forEach(sheet => {
     const btn = document.createElement('button');
     btn.className = 'nav-btn';
@@ -183,18 +209,16 @@
     navButtonsDiv.appendChild(btn);
   });
 
-  // Load sheet pertama otomatis
+  // Load sheet pertama (Daf. Isi) secara otomatis
   if (sheets.length > 0) {
     iframe.src = `${baseSheetURL}?gid=${sheets[0].gid}`;
   }
 
-  // Toggle sidebar collapse
   toggleSidebarBtn.onclick = () => {
     sidebar.classList.toggle('collapsed');
     toggleSidebarBtn.classList.toggle('collapsed');
   };
 
-  // Dark mode toggle
   function toggleTheme() {
     document.body.classList.toggle('dark');
     const btn = document.querySelector('.theme-toggle');
