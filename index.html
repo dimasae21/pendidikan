@@ -3,36 +3,48 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Rekap Tata Tertib SMASIX</title>
+<title>Rekap Tata Tertib dengan Navigasi Sheet</title>
 <style>
-  :root {
-    --bg-light: #f4f4f4;
-    --text-light: #222;
-    --bg-dark: #181818;
-    --text-dark: #f4f4f4;
-    --header-bg: linear-gradient(90deg, #4CAF50, #2E7D32);
-  }
   body {
-    margin: 0;
     font-family: Arial, sans-serif;
-    background-color: var(--bg-light);
-    color: var(--text-light);
-    transition: background-color 0.3s, color 0.3s;
-  }
-  body.dark {
-    background-color: var(--bg-dark);
-    color: var(--text-dark);
+    margin: 0;
+    background: #f4f4f4;
+    color: #222;
   }
   header {
+    background: linear-gradient(90deg, #4CAF50, #2E7D32);
+    color: white;
     padding: 1rem;
     text-align: center;
-    background: var(--header-bg);
+  }
+  #nav-buttons {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin: 1rem 0;
+    padding: 0 10px;
+  }
+  .nav-btn {
+    background-color: #2E7D32;
     color: white;
+    border: none;
+    padding: 15px 25px;
+    font-size: 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    flex-grow: 1;
+    max-width: 200px;
+    transition: background-color 0.3s;
+  }
+  .nav-btn:hover {
+    background-color: #4CAF50;
   }
   iframe {
     width: 100%;
-    height: 90vh;
+    height: 80vh;
     border: none;
+    display: block;
   }
   button.theme-toggle {
     position: fixed;
@@ -47,17 +59,80 @@
     font-size: 14px;
     z-index: 10;
   }
+  body.dark {
+    background-color: #181818;
+    color: #f4f4f4;
+  }
+  body.dark header {
+    background: linear-gradient(90deg, #1b5e20, #2e7d32);
+  }
+  body.dark .nav-btn {
+    background-color: #1b5e20;
+    color: #c8e6c9;
+  }
+  body.dark .nav-btn:hover {
+    background-color: #388e3c;
+  }
 </style>
 </head>
 <body>
+
 <header>
   <h1>📊 Rekap Tata Tertib SMASIX</h1>
-  <p>Data langsung dari Google Sheets</p>
+  <p>Pilih halaman sheet dengan tombol berikut:</p>
 </header>
+
+<div id="nav-buttons">
+  <!-- Tombol akan dibuat otomatis di JS -->
+</div>
 
 <button class="theme-toggle" onclick="toggleTheme()">🌙 Mode Gelap</button>
 
-<iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vSc_0t3Znf0X9eSpBcaJWlccpfUP7yVkwK51eJF_lMukq8LAiQZn3Jq_mxEy5Xm8j_vspSxTb25p0aD/pubhtml?widget=true&amp;headers=false"></iframe>
+<iframe id="sheet-frame" src=""></iframe>
 
 <script>
-  function toggleTheme()
+  // Ganti dengan link dasar Google Sheets pubhtml kamu, tapi tanpa sheet id (gid)
+  const baseSheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSc_0t3Znf0X9eSpBcaJWlccpfUP7yVkwK51eJF_lMukq8LAiQZn3Jq_mxEy5Xm8j_vspSxTb25p0aD/pubhtml";
+
+  // Daftar sheet dan gid-nya (lihat di URL sheet kamu)
+  // Contoh: https://docs.google.com/spreadsheets/d/e/.../pubhtml?gid=0 => gid = 0
+  const sheets = [
+    { name: "Sheet1", gid: "0" },
+    { name: "Sheet2", gid: "123456789" },
+    { name: "Sheet3", gid: "987654321" }
+    // Tambah sesuai jumlah sheet dan gid dari spreadsheet kamu
+  ];
+
+  const navButtonsDiv = document.getElementById('nav-buttons');
+  const iframe = document.getElementById('sheet-frame');
+
+  // Buat tombol navigasi
+  sheets.forEach(sheet => {
+    const btn = document.createElement('button');
+    btn.textContent = sheet.name;
+    btn.className = 'nav-btn';
+    btn.onclick = () => {
+      iframe.src = `${baseSheetURL}?gid=${sheet.gid}`;
+    };
+    navButtonsDiv.appendChild(btn);
+  });
+
+  // Load sheet pertama otomatis
+  if(sheets.length > 0) {
+    iframe.src = `${baseSheetURL}?gid=${sheets[0].gid}`;
+  }
+
+  // Dark mode toggle
+  function toggleTheme() {
+    document.body.classList.toggle('dark');
+    const btn = document.querySelector('.theme-toggle');
+    if(document.body.classList.contains('dark')) {
+      btn.textContent = '☀️ Mode Terang';
+    } else {
+      btn.textContent = '🌙 Mode Gelap';
+    }
+  }
+</script>
+
+</body>
+</html>
