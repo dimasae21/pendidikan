@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Rekap Tata Tertib - Navigasi Lengkap</title>
+<title>Rekap Tata Tertib SMA N 6 Madiun- Navigasi Lengkap</title>
 <style>
   :root {
     --sidebar-width: 250px;
@@ -106,7 +106,6 @@
   #sidebar.collapsed .nav-btn:hover::after {
     display: block;
   }
-
   main {
     flex-grow: 1;
     display: flex;
@@ -154,10 +153,9 @@
 <button class="theme-toggle" onclick="toggleTheme()">🌙 Mode Gelap</button>
 
 <script>
-  // Base URL Google Sheets kamu (publish to web versi pubhtml)
   const baseSheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSc_0t3Znf0X9eSpBcaJWlccpfUP7yVkwK51eJF_lMukq8LAiQZn3Jq_mxEy5Xm8j_vspSxTb25p0aD/pubhtml";
 
-  // Daftar sheet dan gid-nya (isi gid sesuai sheet di spreadsheet kamu)
+  // Isi gid sesuai dengan masing-masing sheetmu (cek URL spreadsheet)
   const sheets = [
     { name: "Daf. Isi", gid: "1670469346" },
     { name: "Telambat", gid: "1328070037" },
@@ -209,7 +207,7 @@
     navButtonsDiv.appendChild(btn);
   });
 
-  // Load sheet pertama (Daf. Isi) secara otomatis
+  // Load sheet pertama otomatis
   if (sheets.length > 0) {
     iframe.src = `${baseSheetURL}?gid=${sheets[0].gid}`;
   }
@@ -222,11 +220,7 @@
   function toggleTheme() {
     document.body.classList.toggle('dark');
     const btn = document.querySelector('.theme-toggle');
-    if (document.body.classList.contains('dark')) {
-      btn.textContent = '☀️ Mode Terang';
-    } else {
-      btn.textContent = '🌙 Mode Gelap';
-    }
+    btn.textContent = document.body.classList.contains('dark') ? '☀️ Mode Terang' : '🌙 Mode Gelap';
   }
 </script>
 
