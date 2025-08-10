@@ -1,190 +1,210 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>REKAP TIM TATIB SMASIX (Website)</title>
-  <!--
-    Single-file website to display Google Sheets data (REKAP TIM TATIB SMASIX)
-    Cara kerja:
-      - Halaman ini mengambil data JSON dari Google Sheets 'gviz' endpoint
-      - Mengurai data, menampilkan tabel interaktif, serta grafik ringkasan
-    Catatan penting:
-      - Sheet harus dapat diakses publik (view) agar fetch client-side berhasil.
-        Jika tidak, silakan buka Google Sheets > File > Share > Publish to web (atau buat agar "Anyone with link can view").
-      - Ganti SHEET_ID dan GID di bawah sesuai URL Anda jika perlu.
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Rekap Tata Tertib - Sidebar Navigasi</title>
+<style>
+  :root {
+    --sidebar-width: 220px;
+    --sidebar-collapsed-width: 50px;
+  }
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    height: 100vh;
+    background: #f4f4f4;
+    color: #222;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  body.dark {
+    background: #181818;
+    color: #eee;
+  }
+  #sidebar {
+    width: var(--sidebar-width);
+    background: #2e7d32;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.3s;
+  }
+  #sidebar.collapsed {
+    width: var(--sidebar-collapsed-width);
+  }
+  #sidebar header {
+    padding: 1rem;
+    font-weight: bold;
+    text-align: center;
+    font-size: 1.2rem;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+  }
+  #toggle-sidebar {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.4rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    margin: 0.5rem auto;
+    width: fit-content;
+    transition: transform 0.3s;
+  }
+  #toggle-sidebar.collapsed {
+    transform: rotate(180deg);
+  }
+  #nav-buttons {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 0.5rem;
+  }
+  .nav-btn {
+    display: block;
+    background: #388e3c;
+    border: none;
+    color: white;
+    width: 100%;
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: background-color 0.3s;
+  }
+  .nav-btn:hover {
+    background: #4caf50;
+  }
+  #sidebar.collapsed .nav-btn {
+    text-align: center;
+    padding: 10px 5px;
+    font-size: 0;
+  }
+  #sidebar.collapsed .nav-btn:hover {
+    font-size: 1rem;
+  }
+  #sidebar.collapsed .nav-btn::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 60px;
+    background: #333;
+    color: white;
+    padding: 3px 6px;
+    border-radius: 3px;
+    white-space: nowrap;
+    display: none;
+    z-index: 1000;
+    font-size: 0.9rem;
+  }
+  #sidebar.collapsed .nav-btn:hover::after {
+    display: block;
+  }
 
-    Untuk kustomisasi lanjut (filter, banyak sheet, hosting), beri tahu saya dan saya akan bantu.
-  -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css">
-  <style>
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;max-width:1100px;margin:24px auto;padding:0 16px}
-    header{display:flex;align-items:center;gap:12px}
-    h1{font-size:1.25rem;margin:0}
-    .controls{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
-    table{width:100%;border-collapse:collapse}
-    .card{background:#fff;border-radius:12px;padding:12px;box-shadow:0 6px 18px rgba(0,0,0,0.06);margin-top:12px}
-    footer{margin-top:18px;color:#666;font-size:.9rem}
-  </style>
+  main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  header.main-header {
+    background: linear-gradient(90deg, #4caf50, #2e7d32);
+    color: white;
+    padding: 1rem 1.5rem;
+    font-size: 1.3rem;
+  }
+  #sheet-frame {
+    flex-grow: 1;
+    border: none;
+    width: 100%;
+  }
+  button.theme-toggle {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    background: #444;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 14px;
+    z-index: 20;
+  }
+</style>
 </head>
 <body>
-  <header>
-    <div>
-      <h1>REKAP TIM TATIB SMASIX (Website)</h1>
-      <div style="color:#666;font-size:.95rem">Sumber: Google Sheets (otomatis diambil)</div>
-    </div>
-  </header>
 
-  <div class="controls">
-    <button id="refreshBtn">Refresh data</button>
-    <label>Filter kolom: <input id="searchInput" placeholder="Ketik untuk cari..."/></label>
-  </div>
+<div id="sidebar">
+  <header>Menu Sheet</header>
+  <button id="toggle-sidebar" title="Toggle Sidebar">&#9776;</button>
+  <div id="nav-buttons"></div>
+</div>
 
-  <div class="card">
-    <h3>Tabel data</h3>
-    <div id="tableWrapper">Loading...</div>
-  </div>
+<main>
+  <header class="main-header">📊 Rekap Tata Tertib SMASIX</header>
+  <iframe id="sheet-frame" src=""></iframe>
+</main>
 
-  <div class="card">
-    <h3>Ringkasan (grafik)</h3>
-    <canvas id="summaryChart" width="800" height="350"></canvas>
-  </div>
+<button class="theme-toggle" onclick="toggleTheme()">🌙 Mode Gelap</button>
 
-  <footer>
-    <div>Catatan: Jika data tidak muncul, pastikan file Google Sheets dapat diakses publik (view) atau pilih "Publish to web".</div>
-  </footer>
+<script>
+  // Link dasar Google Sheets pubhtml kamu tanpa gid
+  const baseSheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSc_0t3Znf0X9eSpBcaJWlccpfUP7yVkwK51eJF_lMukq8LAiQZn3Jq_mxEy5Xm8j_vspSxTb25p0aD/pubhtml";
 
-  <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" ></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script>
-    // Ganti SHEET_ID dan GID sesuai URL Anda (diambil dari link yang Anda berikan)
-    const SHEET_ID = '1ZWNjqNgdpD0yA3fojsWWgOUvgzPgBNv6tQvw4Q4pSzg';
-    const GID = '1258603752';
+  // Daftar sheet dan gid-nya
+  const sheets = [
+    { name: "Semua", gid: "0" },
+    { name: "Keterlambatan", gid: "123456789" },
+    { name: "Alpha", gid: "987654321" },
+    { name: "X-A", gid: "1122334455" }
+    // Tambah sheet lain sesuai gid dan nama kamu
+  ];
 
-    const gvizUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${GID}&tqx=out:json`;
+  const navButtonsDiv = document.getElementById('nav-buttons');
+  const iframe = document.getElementById('sheet-frame');
+  const sidebar = document.getElementById('sidebar');
+  const toggleSidebarBtn = document.getElementById('toggle-sidebar');
 
-    const tableWrapper = document.getElementById('tableWrapper');
-    const refreshBtn = document.getElementById('refreshBtn');
-    const searchInput = document.getElementById('searchInput');
+  // Buat tombol navigasi
+  sheets.forEach(sheet => {
+    const btn = document.createElement('button');
+    btn.className = 'nav-btn';
+    btn.textContent = sheet.name;
+    btn.setAttribute('data-tooltip', sheet.name);
+    btn.onclick = () => {
+      iframe.src = `${baseSheetURL}?gid=${sheet.gid}`;
+    };
+    navButtonsDiv.appendChild(btn);
+  });
 
-    async function fetchSheet() {
-      tableWrapper.innerHTML = 'Memuat data...';
-      try {
-        const res = await fetch(gvizUrl);
-        const text = await res.text();
-        // gviz returns something like: google.visualization.Query.setResponse(...);
-        const jsonText = text.match(/setResponse\((.*)\);?/s)[1];
-        const data = JSON.parse(jsonText);
-        return data.table;
-      } catch (err) {
-        console.error(err);
-        tableWrapper.innerHTML = `<div style="color:red">Gagal mengambil data. Periksa pengaturan akses Google Sheets (harus publik / "Anyone with link can view").<br/>Error: ${err.message}</div>`;
-        return null;
-      }
+  // Load sheet pertama otomatis
+  if (sheets.length > 0) {
+    iframe.src = `${baseSheetURL}?gid=${sheets[0].gid}`;
+  }
+
+  // Toggle sidebar collapse
+  toggleSidebarBtn.onclick = () => {
+    sidebar.classList.toggle('collapsed');
+    toggleSidebarBtn.classList.toggle('collapsed');
+  };
+
+  // Dark mode toggle
+  function toggleTheme() {
+    document.body.classList.toggle('dark');
+    const btn = document.querySelector('.theme-toggle');
+    if (document.body.classList.contains('dark')) {
+      btn.textContent = '☀️ Mode Terang';
+    } else {
+      btn.textContent = '🌙 Mode Gelap';
     }
+  }
+</script>
 
-    function tableFromGViz(table) {
-      const cols = table.cols.map(c => c.label || c.id || '');
-      const rows = table.rows.map(r => r.c.map(cell => cell ? (cell.f || cell.v) : ''));
-
-      // Build HTML table
-      const tbl = document.createElement('table');
-      tbl.id = 'gsTable';
-      const thead = document.createElement('thead');
-      const trh = document.createElement('tr');
-      cols.forEach(h => { const th = document.createElement('th'); th.textContent = h; trh.appendChild(th); });
-      thead.appendChild(trh);
-      tbl.appendChild(thead);
-
-      const tbody = document.createElement('tbody');
-      rows.forEach(r => {
-        const tr = document.createElement('tr');
-        r.forEach(cell => {
-          const td = document.createElement('td');
-          td.textContent = cell;
-          tr.appendChild(td);
-        });
-        tbody.appendChild(tr);
-      });
-      tbl.appendChild(tbody);
-      return {tbl, cols, rows};
-    }
-
-    function makeSummaryChart(cols, rows) {
-      // Sebuah ringkasan umum: jika ada kolom bertajuk 'Total per Bulan' atau 'Total', kita akan plotnya.
-      // Cari kolom yang berisi kata 'Total' atau 'Jul'..'Jun' untuk series bulanan
-      const labels = [];
-      const dataPoints = [];
-
-      // Temukan kolom bulanan (mengandung Jan..Dec atau Jul..Jun)
-      const monthCols = cols.map((c,i)=>({c,i})).filter(x=>/Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sept|Sep|Oct|Nov|Des|Dec|Jun|Jul/i.test(x.c));
-      if(monthCols.length>0){
-        // jumlahkan tiap kolom bulan -> hitung total per bulan
-        const monthSums = monthCols.map(mc => {
-          let s = 0;
-          rows.forEach(r => {
-            const val = parseFloat(String(r[mc.i]).replace(/[^0-9.-]+/g,''));
-            if(!isNaN(val)) s += val;
-          });
-          return s;
-        });
-        const chartLabels = monthCols.map(m=>m.c);
-        renderChart(chartLabels, monthSums);
-        return;
-      }
-
-      // fallback: cari kolom yang mengandung 'Total'
-      const totalIdx = cols.findIndex(c=>/total/i.test(c));
-      if(totalIdx>=0){
-        const totals = rows.map(r=>parseFloat(String(r[totalIdx]).replace(/[^0-9.-]+/g,'')) || 0);
-        const rowLabels = rows.map((r,i)=>`Row ${i+1}`);
-        renderChart(rowLabels, totals);
-        return;
-      }
-
-      // jika tidak ada data kuantitatif, kosongkan chart
-      const ctx = document.getElementById('summaryChart').getContext('2d');
-      ctx.canvas.style.display = 'none';
-    }
-
-    let chartInstance = null;
-    function renderChart(labels, data){
-      const ctx = document.getElementById('summaryChart').getContext('2d');
-      ctx.canvas.style.display = '';
-      if(chartInstance) chartInstance.destroy();
-      chartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [{label:'Jumlah', data: data}]
-        },
-        options: {responsive:true, maintainAspectRatio:false}
-      });
-    }
-
-    async function init() {
-      const table = await fetchSheet();
-      if(!table) return;
-      const {tbl, cols, rows} = tableFromGViz(table);
-      tableWrapper.innerHTML = '';
-      tableWrapper.appendChild(tbl);
-
-      // inisialisasi datatable
-      new simpleDatatables.DataTable(tbl, { searchable: true, fixedHeight: false });
-
-      // filter manual
-      searchInput.addEventListener('input', ()=>{
-        const q = searchInput.value.toLowerCase();
-        const trs = tbl.querySelectorAll('tbody tr');
-        trs.forEach(tr=> tr.style.display = (tr.textContent.toLowerCase().includes(q)?'':'none'));
-      });
-
-      makeSummaryChart(cols, rows);
-    }
-
-    refreshBtn.addEventListener('click', init);
-    // init otomatis
-    init();
-  </script>
 </body>
 </html>
